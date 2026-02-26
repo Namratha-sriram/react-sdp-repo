@@ -1,105 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import '../admin/admin.css';
+import React from 'react';
+import { Link, Routes, Route, useNavigate } from 'react-router-dom';
+import './admin.css';
+import AdminHome from './AdminHome';
+import ViewCustomers from './ViewCustomers';
+import ViewManagers from './ViewManagers';
+import AddManager from './AddManager';
+import AdminLogout from './AdminLogout';
 
-export default function ViewCustomers() {
-  const [customers, setCustomers] = useState([]);
-  const [deleteMessage, setDeleteMessage] = useState('');
+export default function AdminNavBar() {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedCustomers = JSON.parse(localStorage.getItem('customerRegistrations')) || [];
-    setCustomers(storedCustomers);
-  }, []);
-
-  const handleDelete = (customerId) => {
-    if (window.confirm(`Are you sure you want to delete customer with ID ${customerId}? This action cannot be undone.`)) {
-      const updatedCustomers = customers.filter(customer => customer.id !== customerId);
-      setCustomers(updatedCustomers);
-      localStorage.setItem('customerRegistrations', JSON.stringify(updatedCustomers));
-      setDeleteMessage(`Customer with ID ${customerId} has been deleted successfully.`);
-      setTimeout(() => setDeleteMessage(''), 3000);
-    }
+  const handleLogout = () => {
+    sessionStorage.removeItem('isAdmin');
+    navigate('/');
+    window.location.reload();
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Manage Customers</h2>
-      {deleteMessage && (
-        <div style={{
-          color: '#28a745',
-          marginBottom: '15px',
-          padding: '10px',
-          backgroundColor: '#d4edda',
-          borderRadius: '4px',
-          border: '1px solid #c3e6cb'
-        }}>
-          {deleteMessage}
+    <div className="admin-container">
+      <nav className="admin-navbar">
+        <div className="navbar-header">
+          <h1>Admin Dashboard</h1>
         </div>
-      )}
+        <ul className="navbar-links">
+          <li><Link to="/admin/home" className="nav-link">Home</Link></li>
+          <li><Link to="/admin/view-customers" className="nav-link">View Customers</Link></li>
+          <li><Link to="/admin/add-manager" className="nav-link">Add Manager</Link></li>
+          <li><Link to="/admin/view-managers" className="nav-link">View Managers</Link></li>
+          <li><button onClick={handleLogout} className="logout-btn">Logout</button></li>
+        </ul>
+      </nav>
 
-      {customers.length === 0 ? (
-        <p style={{ fontSize: '16px', color: '#666' }}>No customers registered yet.</p>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            backgroundColor: '#fff',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            borderRadius: '4px'
-          }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>ID</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Full Name</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Gender</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Email</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Username</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Contact No</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Location</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>Registered At</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold' }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((customer, index) => (
-                <tr key={index} style={{ borderBottom: '1px solid #dee2e6', transition: 'background-color 0.2s' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                >
-                  <td style={{ padding: '12px' }}>{customer.id}</td>
-                  <td style={{ padding: '12px' }}>{customer.fullName}</td>
-                  <td style={{ padding: '12px' }}>{customer.gender}</td>
-                  <td style={{ padding: '12px' }}>{customer.email}</td>
-                  <td style={{ padding: '12px' }}>{customer.username}</td>
-                  <td style={{ padding: '12px' }}>{customer.contactNo}</td>
-                  <td style={{ padding: '12px' }}>{customer.location}</td>
-                  <td style={{ padding: '12px', fontSize: '12px', color: '#666' }}>{customer.registeredAt}</td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <button
-                      onClick={() => handleDelete(customer.id)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#dc3545',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = '#c82333'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = '#dc3545'}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="admin-content">
+        <Routes>
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/view-customers" element={<ViewCustomers />} />
+          <Route path="/admin/add-manager" element={<AddManager />} />
+          <Route path="/admin/view-managers" element={<ViewManagers />} />
+          <Route path="/admin/logout" element={<AdminLogout />} />
+        </Routes>
+      </div>
     </div>
   );
 }
